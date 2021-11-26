@@ -3,7 +3,7 @@
     "target": "es2016",
     "outDir": "./dist",
     "module": "commonjs",
-    "lib": ["ES2015"],
+    "lib": ["ES2019"],
     "declaration": true,
     "strict": true,
     "allowJs": true,
