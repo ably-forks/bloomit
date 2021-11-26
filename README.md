@@ -1,3 +1,11 @@
+# `@ably/bloomit`
+
+A fork of the bloomit package to fix a few issues (eg
+https://github.com/kblauhut/bloomit/issues/4 ) and switch from xxhash to
+farmhash.
+
+Original readme follows below.
+
 # bloomit
 
 bloomit is a Space efficient bloom filter based on the
