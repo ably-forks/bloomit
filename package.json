@@ -1,6 +1,6 @@
 {
-  "name": "bloomit",
-  "version": "1.2.0",
+  "name": "@ably/bloomit",
+  "version": "1.3.0",
   "description": "Space efficient bloom filter based on the bloom-filters npm package.",
   "main": "dist/index.js",
   "dependencies": {
@@ -18,14 +18,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kblauhut/bloomit.git"
+    "url": "git+https://github.com/ably-forks/bloomit.git"
   },
   "author": "Kolja Blauhut",
+  "contributors": [
+    "Thomas Minier & Arnaud Grall",
+    "Kolja Blauhut",
+    "Simon Woolf"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kblauhut/bloomit/issues"
+    "url": "https://github.com/ably-forks/bloomit/issues"
   },
-  "homepage": "https://github.com/kblauhut/bloomit#readme",
+  "homepage": "https://github.com/ably-forks/bloomit#readme",
   "directories": {
     "test": "test"
   },
