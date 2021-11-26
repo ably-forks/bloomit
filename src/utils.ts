@@ -24,7 +24,7 @@ SOFTWARE.
 
 'use strict';
 
-import XXH from 'xxhashjs';
+import * as farmhash from 'farmhash';
 
 /**
  * Utilitaries functions
@@ -44,7 +44,7 @@ interface TwoHashes {
   second: number;
 }
 
-export type HashableInput = string | ArrayBuffer | Buffer;
+export type HashableInput = string | Buffer;
 export type Bit = 0 | 1;
 
 /**
@@ -57,34 +57,15 @@ export type Bit = 0 | 1;
  * @author Arnaud Grall & Thomas Minier
  */
 export function hashTwice(
-  value: HashableInput,
-  seed: number,
-  asInt?: boolean
+  value: HashableInput
 ): TwoHashes {
-  if (asInt === undefined) {
-    asInt = false;
-  }
-  const f = XXH.h64(value, seed + 1);
-  const l = XXH.h64(value, seed + 2);
-  if (asInt) {
-    return {
-      first: f.toNumber(),
-      second: l.toNumber(),
-    };
-  } else {
-    let one = f.toString(16);
-    if (one.length < 16) {
-      one = '0'.repeat(16 - one.length) + one;
-    }
-    let two = l.toString(16);
-    if (two.length < 16) {
-      two = '0'.repeat(16 - two.length) + two;
-    }
-    return {
-      first: Number(one),
-      second: Number(two),
-    };
-  }
+  const hash64 = BigInt(farmhash.fingerprint64(value));
+  const boundary = BigInt(2)**BigInt(32);
+  // take our hashes to be the top and bottom 32 bits of the 64-bit hash
+  return {
+    first: Number(hash64 / boundary),
+    second: Number(hash64 % boundary),
+  };
 }
 
 /**
@@ -126,7 +107,7 @@ export function getDistinctIndices(
   number: number,
   seed?: number
 ): Array<number> {
-  const {first, second} = hashTwice(element, seed!, true);
+  const {first, second} = hashTwice(element);
 	const indices: Array<number> = [];
 	let n = 0;
 	while(indices.length < number) {
