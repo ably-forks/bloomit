@@ -1,7 +1,11 @@
 /* file : utils.ts
 MIT License
 
-Copyright (c) 2017-2020 Thomas Minier & Arnaud Grall
+Original bloom-filter implementation: Copyright (c) 2017-2020 Thomas Minier & Arnaud Grall
+
+Bloomit changes: Copyright 2021 Kolja Blauhut
+
+Ably-forks/bloomit changes: Copyright 2021 Simon Woolf
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
