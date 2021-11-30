@@ -112,16 +112,16 @@ export function getDistinctIndices(
   seed?: number
 ): Array<number> {
   const {first, second} = hashTwice(element);
-	const indices: Array<number> = [];
-	let n = 0;
-	while(indices.length < number) {
-		const index = doubleHashing(n, first, second, size);
-		if(!indices.includes(index)) {
-			indices.push(index);
-		}
-		n++;
-	}
-	return indices;
+  const indices: Array<number> = [];
+  let n = 0;
+  while(indices.length < number) {
+    const index = doubleHashing(n, first, second, size);
+    if(!indices.includes(index)) {
+      indices.push(index);
+    }
+    n++;
+  }
+  return indices;
 }
 
 /**
