@@ -30,6 +30,9 @@ SOFTWARE.
 
 import * as farmhash from 'farmhash';
 
+const PRIME_STR = "'";
+const PRIME_BUF = Buffer.from(PRIME_STR);
+
 /**
  * Utilitaries functions
  * @namespace Utils
@@ -55,7 +58,6 @@ export type Bit = 0 | 1;
  * (64-bits only) Hash a value into two values (in hex or integer format)
  * @param  value - The value to hash
  * @param  asInt - (optional) If True, the values will be returned as an integer. Otherwise, as hexadecimal values.
- * @param seed the seed used for hashing
  * @return The results of the hash functions applied to the value (in hex or integer)
  * @memberof Utils
  * @author Arnaud Grall & Thomas Minier
@@ -73,53 +75,50 @@ export function hashTwice(
 }
 
 /**
- * Apply Double Hashing to produce a n-hash
- *
- * This implementation used directly the value produced by the two hash functions instead of the functions themselves.
- * @see {@link http://citeseer.ist.psu.edu/viewdoc/download;jsessionid=4060353E67A356EF9528D2C57C064F5A?doi=10.1.1.152.579&rep=rep1&type=pdf} for more details about double hashing.
- * @param  n - The indice of the hash function we want to produce
- * @param  hashA - The result of the first hash function applied to a value.
- * @param  hashB - The result of the second hash function applied to a value.
- * @param  size - The size of the datastructures associated to the hash context (ex: the size of a Bloom Filter)
- * @return The result of hash_n applied to a value.
- * @memberof Utils
- * @author Thomas Minier
- */
-export function doubleHashing(
-  n: number,
-  hashA: number,
-  hashB: number,
-  size: number
-): number {
-  // Cubic term avoids increased-probability-of-collision issue, see
-  // http://peterd.org/pcd-diss.pdf s.6.5.4
-  return Math.abs((hashA + n*hashB + Math.floor((n**3 - n)/6)) % size);
-}
-
-/**
  * Generate a set of distinct indexes on interval [0, size) using the double hashing technique
  * @param  element  - The element to hash
  * @param  size     - the range on which we can generate an index [0, size) = size
  * @param  number   - The number of indexes desired
- * @param  seed     - The seed used
+ * @param  maxIterations - throw if we exceed this without finding a result of the
+ * requested size; avoids a hard busy loop in the event of an algorithm failure. Defaults
+ * to size*100
  * @return A array of indexes
- * @author Arnaud Grall
+ * @author Arnaud Grall, Simon Woolf
  */
 export function getDistinctIndices(
   element: HashableInput,
   size: number,
   number: number,
-  seed?: number
+  maxIterations: number = size * 100
 ): Array<number> {
-  const {first, second} = hashTwice(element);
+  let {first, second} = hashTwice(element);
+  let index, i = 1;
   const indices: Array<number> = [];
-  let n = 0;
+  // Implements enhanced double hashing algorithm from
+  // http://peterd.org/pcd-diss.pdf s.6.5.4
   while(indices.length < number) {
-    const index = doubleHashing(n, first, second, size);
+    index = first % size;
     if(!indices.includes(index)) {
       indices.push(index);
     }
-    n++;
+    first = (first + second) % size;
+    second = (second + i) % size;
+    i++;
+
+    if(i > size) {
+      // Enhanced double hashing stops cycles of length less than `size` in the case where
+      // size is coprime with the second hash. But you still get cycles of length `size`.
+      // So if we reach there and haven't finished, append a prime to the input and
+      // rehash.
+      element = Buffer.isBuffer(element)
+        ? Buffer.concat([element, PRIME_BUF])
+        : element + PRIME_STR;
+      ({first, second} = hashTwice(element));
+    }
+
+    if(maxIterations && i > maxIterations) {
+      throw new Error('max iterations exceeded');
+    }
   }
   return indices;
 }
