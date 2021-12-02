@@ -29,11 +29,10 @@ const { BloomFilter } = require('../dist/index.js');
 
 describe('BloomFilter', () => {
   const targetRate = 0.1;
-  const seed = Math.random();
 
   describe('construction', () => {
     it('should add element to the filter with #add', () => {
-      const filter = BloomFilter.create(15, targetRate, seed);
+      const filter = BloomFilter.create(15, targetRate);
       filter.add('alice');
       filter.add('bob');
       filter.length.should.equal(2);
@@ -96,16 +95,15 @@ describe('BloomFilter', () => {
   });
 
   describe('#export', () => {
-    const filter = BloomFilter.from(['alice', 'bob', 'carl'], targetRate, seed);
+    const filter = BloomFilter.from(['alice', 'bob', 'carl'], targetRate);
     it('should export a bloom filter to a Uint8Array', () => {
       const exported = filter.export();
-      exported.length.should.equal(filter._filter.length + 4 * 8);
+      exported.length.should.equal(filter._filter.length + 3 * 8);
     });
 
     it('should create a bloom filter from a Uint8Array export', () => {
       const exported = filter.export();
       const newFilter = BloomFilter.import(exported);
-      newFilter._seed.should.equal(filter._seed);
       newFilter.size.should.equal(filter.size);
       newFilter.length.should.equal(filter.length);
       newFilter._nbHashes.should.equal(filter._nbHashes);

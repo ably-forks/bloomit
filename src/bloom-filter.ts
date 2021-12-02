@@ -51,17 +51,13 @@ export default class BloomFilter {
   private _nbHashes: number;
   private _filter: Uint8Array;
   private _length: number;
-  private _seed: number;
 
   /**
    * Constructor
    * @param size - The number of cells.
    * @param nbHashes - The number of hash functions used
-   * @param seed - The filter seed.
    */
-  constructor(size: number, nbHashes: number, seed: number = 0x1234567890) {
-    const positiveIntSeed = Math.abs(Math.ceil(seed));
-    this._seed = positiveIntSeed;
+  constructor(size: number, nbHashes: number) {
     this._size = size;
     this._nbHashes = nbHashes;
     this._filter = new Uint8Array(getUint8ArrayLength(size));
@@ -77,11 +73,10 @@ export default class BloomFilter {
   static create(
     nbItems: number,
     errorRate: number,
-    seed: number = 0x1234567890
   ): BloomFilter {
     const size = optimalFilterSize(nbItems, errorRate);
     const hashes = optimalHashes(size, nbItems);
-    return new BloomFilter(size, hashes, seed);
+    return new BloomFilter(size, hashes);
   }
 
   /**
@@ -96,10 +91,9 @@ export default class BloomFilter {
   static from(
     items: Iterable<HashableInput>,
     errorRate: number,
-    seed: number = 0x1234567890
   ): BloomFilter {
     const array = Array.from(items);
-    const filter = BloomFilter.create(array.length, errorRate, seed);
+    const filter = BloomFilter.create(array.length, errorRate);
     array.forEach(element => filter.add(element));
     return filter;
   }
@@ -111,16 +105,14 @@ export default class BloomFilter {
    * @author Kolja Blauhut
    */
   static import(binaryBloomFilter: Uint8Array): BloomFilter {
-    const seedArray = binaryBloomFilter.slice(0, 8);
-    const nbHashesArray = binaryBloomFilter.slice(8, 16);
-    const lengthArray = binaryBloomFilter.slice(16, 24);
-    const sizeArray = binaryBloomFilter.slice(24, 32);
-    const filterArray = binaryBloomFilter.slice(32, binaryBloomFilter.length);
+    const nbHashesArray = binaryBloomFilter.slice(0, 8);
+    const lengthArray = binaryBloomFilter.slice(8, 16);
+    const sizeArray = binaryBloomFilter.slice(16, 24);
+    const filterArray = binaryBloomFilter.slice(24, binaryBloomFilter.length);
 
     const bloomFilter = new BloomFilter(
       uint8ArrayToInt64(sizeArray),
-      uint8ArrayToInt64(nbHashesArray),
-      uint8ArrayToInt64(seedArray)
+      uint8ArrayToInt64(nbHashesArray)
     );
 
     bloomFilter._length = uint8ArrayToInt64(lengthArray);
@@ -145,14 +137,6 @@ export default class BloomFilter {
   }
 
   /**
-   * Get the seed of the filter
-   * @return The filter seed
-   */
-  get seed(): number {
-    return this._seed;
-  }
-
-  /**
    * Get the hash count of the filter
    * @return The filter hash count
    */
@@ -171,8 +155,7 @@ export default class BloomFilter {
     const indexes = getDistinctIndices(
       element,
       this._size,
-      this._nbHashes,
-      this._seed
+      this._nbHashes
     );
 
     for (let i = 0; i < indexes.length; i++) {
@@ -198,8 +181,7 @@ export default class BloomFilter {
     const indexes = getDistinctIndices(
       element,
       this._size,
-      this._nbHashes,
-      this._seed
+      this._nbHashes
     );
     for (let i = 0; i < indexes.length; i++) {
       if (!getBitAtIndex(this._filter, indexes[i])) {
@@ -245,13 +227,12 @@ export default class BloomFilter {
    * @author Kolja Blauhut
    */
   export(): Uint8Array {
-    const exportArray = new Uint8Array(this._filter.length + 4 * 8); // Filter length + 4 number parameters
-    exportArray.set(int64ToUint8Array(this.seed), 0);
-    exportArray.set(int64ToUint8Array(this.nbHashes), 8);
-    exportArray.set(int64ToUint8Array(this.length), 16);
-    exportArray.set(int64ToUint8Array(this.size), 24);
+    const exportArray = new Uint8Array(this._filter.length + 3 * 8); // Filter length + 3 number parameters
+    exportArray.set(int64ToUint8Array(this.nbHashes), 0);
+    exportArray.set(int64ToUint8Array(this.length), 8);
+    exportArray.set(int64ToUint8Array(this.size), 16);
 
-    const exportArrayStartIndex = 32;
+    const exportArrayStartIndex = 24;
     for (let index = 0; index < this._filter.length; index += 1) {
       exportArray[index + exportArrayStartIndex] = this._filter[index];
     }
