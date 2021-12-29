@@ -4,7 +4,7 @@
   "description": "Space efficient bloom filter based on the bloom-filters npm package.",
   "main": "dist/index.js",
   "dependencies": {
-    "farmhash": "^3.2.1"
+    "farmhash": "^3.2.2"
   },
   "devDependencies": {
     "@types/node": "^16.11.10",
