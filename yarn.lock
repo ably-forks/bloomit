@@ -291,10 +291,9 @@ expand-template@^2.0.3:
   resolved "https://registry.npmjs.org/expand-template/-/expand-template-2.0.3.tgz"
   integrity sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==
 
-farmhash@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/farmhash/-/farmhash-3.2.2.tgz#3a3ea29c433553083212f5f34883314a954d469c"
-  integrity sha512-vhGKzOrdw2VgB8uqHtCQhQxgP2N0UwKCQo8m0cdD9KzyFJs8wbvFS5UzUJw1aHRCxciBgEVxF4ilF7jZ/6US3g==
+"farmhash@github:ably-forks/farmhash#v3.2.2-debug":
+  version "3.2.2-debug"
+  resolved "https://codeload.github.com/ably-forks/farmhash/tar.gz/0704f20f2fbb094e4038c44dd258d7d27269c7ea"
   dependencies:
     node-addon-api "^4.2.0"
     prebuild-install "^7.0.0"
