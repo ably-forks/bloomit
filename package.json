@@ -1,6 +1,6 @@
 {
   "name": "@ably/bloomit",
-  "version": "1.4.2",
+  "version": "1.4.2-debug",
   "description": "Space efficient bloom filter based on the bloom-filters npm package.",
   "main": "dist/index.js",
   "dependencies": {
